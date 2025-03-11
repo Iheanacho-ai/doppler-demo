@@ -54,6 +54,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
+            git clone https://github.com/Iheanacho-ai/doppler-demo.git /home/ubuntu/doppler-demo || true
             cd /home/ubuntu/doppler-demo &&
             git pull origin main &&
             npm install &&
