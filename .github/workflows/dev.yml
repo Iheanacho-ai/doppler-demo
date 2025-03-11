@@ -25,25 +25,22 @@ jobs:
       - name: Build Application
         run: npm run build  
 
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doppler-demo-artifact
+          path: .  # Upload entire project (excluding node_modules if `.gitignore` is set correctly)
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4  
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install  
-
-      - name: Build Application
-        run: npm run build  
+          name: doppler-demo-artifact
+          path: doppler-demo
 
       - name: Deploy to Server
         env:
@@ -53,11 +50,11 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" doppler-demo/ $SERVER_USER@$SERVER_IP:/home/ubuntu/doppler-demo
+
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
-            git clone https://github.com/Iheanacho-ai/doppler-demo.git /home/ubuntu/doppler-demo || true
             cd /home/ubuntu/doppler-demo &&
-            git pull origin main &&
-            npm install &&
-            npm run build &&
-            pm2 restart doppler-demo || pm2 start npm --name 'doppler-demo' -- start
+            npm install --omit=dev &&   # Install production dependencies only
+            pm2 delete doppler-demo || true
+            pm2 start npm --name 'doppler-demo' -- start
           "
