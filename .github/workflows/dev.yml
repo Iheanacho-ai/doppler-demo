@@ -55,6 +55,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
             cd /home/ubuntu/doppler-demo &&
             npm install --omit=dev &&   # Install production dependencies only
-            pm2 delete doppler-demo || true
-            pm2 start npm --name 'doppler-demo' -- start
+            npm run dev
           "
