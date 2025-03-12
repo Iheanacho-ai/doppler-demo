@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" doppler-demo/ $SERVER_USER@$SERVER_IP:/home/ubuntu/doppler-demo
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" ./build/ $SERVER_USER@$SERVER_IP:/home/ubuntu/doppler-demo
 
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
             cd /home/ubuntu/doppler-demo &&
