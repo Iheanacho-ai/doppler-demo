@@ -19,7 +19,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build React app
         run: npm run build
@@ -32,10 +32,10 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i private_key.pem" ./build/ $SERVER_USER@$SERVER_IP:/home/ubuntu/doppler-demo
-
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
-            cd /home/ubuntu/doppler-demo &&
-            npm install --omit=dev &&   # Install production dependencies only
-            pm2 delete doppler-demo || true
-            pm2 start npm --name 'doppler-demo' -- start
+          cd ~/doppler-demo
+          git pull origin main
+          npm ci --omit=dev
+          pm2 delete doppler-demo || true #delete if it exists.
+          pm2 start npm --name 'doppler-demo' -- start
+          EOF
