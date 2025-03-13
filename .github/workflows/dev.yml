@@ -32,10 +32,10 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP "
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP << EOF
           cd ~/doppler-demo
           git pull origin main
           npm ci --omit=dev
-          pm2 delete doppler-demo || true #delete if it exists.
+          pm2 delete doppler-demo || true # Delete if it exists
           pm2 start npm --name 'doppler-demo' -- start
           EOF
