@@ -39,7 +39,17 @@ jobs:
           cd /home/ubuntu/doppler-demo
           git pull origin main
           npm ci --omit=dev
-          sudo npm install -g pm2  # Ensure pm2 is installed
-          pm2 delete doppler-demo || true
-          pm2 start npm --name 'doppler-demo' -- start
+          EOF
+
+      - name: Transfer Build Artifacts
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r .next $SERVER_USER@$SERVER_IP:/home/ubuntu/doppler-demo/
+
+      - name: Restart PM2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP << EOF
+          cd /home/ubuntu/doppler-demo
+          sudo npm install -g pm2
+          pm2 restart doppler-demo || pm2 start npm --name 'doppler-demo' -- start
+          pm2 save
           EOF
