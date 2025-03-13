@@ -3,7 +3,7 @@ name: Deploy React App to AWS EC2
 on:
   push:
     branches:
-      - main # Or your main branch
+      - main
 
 jobs:
   build_and_deploy:
@@ -33,9 +33,13 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP << EOF
-          cd ~/doppler-demo
+          if [ ! -d "/home/ubuntu/doppler-demo" ]; then
+            git clone https://github.com/Iheanacho-ai/doppler-demo.git /home/ubuntu/doppler-demo
+          fi
+          cd /home/ubuntu/doppler-demo
           git pull origin main
           npm ci --omit=dev
-          pm2 delete doppler-demo || true # Delete if it exists
+          sudo npm install -g pm2  # Ensure pm2 is installed
+          pm2 delete doppler-demo || true
           pm2 start npm --name 'doppler-demo' -- start
           EOF
